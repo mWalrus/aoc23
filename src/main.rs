@@ -1,3 +1,45 @@
+mod d1;
+
+use clap::{Parser, ValueEnum};
+
+#[derive(Clone, Copy, ValueEnum)]
+enum Day {
+    D1,
+    D2,
+    D3,
+    D4,
+    D5,
+    D6,
+    D7,
+    D8,
+    D9,
+    D10,
+    D11,
+    D12,
+    D13,
+    D14,
+    D15,
+    D16,
+    D17,
+    D18,
+    D19,
+    D20,
+    D21,
+    D22,
+    D23,
+    D24,
+}
+
+#[derive(Parser)]
+struct Args {
+    #[clap(required = true, about)]
+    day: Day,
+}
+
 fn main() {
-    println!("Hello, world!");
+    let args = Args::parse();
+    match args.day {
+        Day::D1 => d1::run(),
+        _ => {}
+    }
 }
