@@ -1,10 +1,9 @@
 // LINK: https://adventofcode.com/2023/day/1
 // DATA: https://adventofcode.com/2023/day/1/input
-const SPELLED_DIGITS: &[&str; 9] = &[
-    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+const DIGITS: &[&str; 18] = &[
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "one", "two", "three", "four", "five", "six",
+    "seven", "eight", "nine",
 ];
-
-const DIGITS: &[&str; 9] = &["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 pub fn run_p1() {
     let document = include_str!("../in-data/d1.txt");
@@ -63,71 +62,38 @@ impl LineParser for Part1Parser {
 }
 
 struct Part2Parser {
-    true_digit_indices: Vec<(usize, usize)>,
-    word_digit_indices: Vec<(usize, usize)>,
+    digits: Vec<(usize, usize)>,
 }
 
 impl LineParser for Part2Parser {
     fn parse(line: &str) -> Self {
-        let mut true_digit_indices = vec![];
-        let mut word_digit_indices = vec![];
+        let mut digits = vec![];
 
-        for digit in SPELLED_DIGITS {
-            let translated = Self::translate_word_digit(digit);
+        for (di, digit) in DIGITS.iter().enumerate() {
             for (i, _) in line.match_indices(digit) {
-                word_digit_indices.push((translated, i));
+                let d = if di < 9 {
+                    digit
+                } else {
+                    DIGITS[di.rem_euclid(9)]
+                };
+                let d = d.parse::<usize>().unwrap();
+                digits.push((d, i));
             }
         }
 
-        for digit in DIGITS {
-            let d = digit.parse::<usize>().unwrap();
-            for (i, _) in line.match_indices(digit) {
-                true_digit_indices.push((d, i));
-            }
-        }
+        digits.sort_by_key(|&(_, i)| i);
 
-        true_digit_indices.sort_by_key(|&(_, i)| i);
-        word_digit_indices.sort_by_key(|&(_, i)| i);
-
-        Self {
-            true_digit_indices,
-            word_digit_indices,
-        }
-    }
-
-    fn translate_word_digit(digit: &str) -> usize {
-        match digit {
-            "one" => 1,
-            "two" => 2,
-            "three" => 3,
-            "four" => 4,
-            "five" => 5,
-            "six" => 6,
-            "seven" => 7,
-            "eight" => 8,
-            "nine" => 9,
-            _ => 0,
-        }
+        Self { digits }
     }
 
     fn get_pair(&self) -> (u32, u32) {
-        let true_first = self.true_digit_indices.first();
-        let true_last = self.true_digit_indices.last();
-
-        let word_first = self.word_digit_indices.first();
-        let word_last = self.word_digit_indices.last();
-
-        let first = match (true_first, word_first) {
-            (Some((td, ti)), Some((_, wi))) if ti < wi => *td,
-            (_, Some((wd, _))) => *wd,
-            (Some((td, _)), _) => *td,
+        let first = match self.digits.first() {
+            Some((td, _)) => *td,
             _ => 0,
         };
 
-        let last = match (true_last, word_last) {
-            (Some((td, ti)), Some((_, wi))) if ti > wi => *td,
-            (_, Some((wd, _))) => *wd,
-            (Some((td, _)), _) => *td,
+        let last = match self.digits.last() {
+            Some((td, _)) => *td,
             _ => 0,
         };
 
