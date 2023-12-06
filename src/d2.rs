@@ -1,3 +1,4 @@
+#[derive(Debug)]
 struct Cubes {
     red: usize,
     green: usize,
@@ -28,49 +29,111 @@ impl Cubes {
         Self { red, green, blue }
     }
 
+    fn empty() -> Self {
+        Self {
+            red: 0,
+            green: 0,
+            blue: 0,
+        }
+    }
+
     fn is_possible(&self, max: &Cubes) -> bool {
         self.red <= max.red && self.green <= max.green && self.blue <= max.blue
     }
-}
 
-fn get_game_id(input: &str) -> u32 {
-    match input.split_once(' ') {
-        Some((_, id)) => id.parse::<u32>().unwrap(),
-        None => 0,
-    }
-}
-
-fn evaluate_rounds(total: &Cubes, rounds_input: &str) -> bool {
-    let mut valid_rounds = 0;
-    let rounds: Vec<_> = rounds_input.split("; ").collect();
-    let round_count = rounds.len();
-    for round in rounds {
-        let cubes = Cubes::parse(round);
-        if cubes.is_possible(&total) {
-            valid_rounds += 1;
+    fn update(&mut self, other: &Cubes) {
+        if other.red > self.red {
+            self.red = other.red;
+        }
+        if other.green > self.green {
+            self.green = other.green;
+        }
+        if other.blue > self.blue {
+            self.blue = other.blue;
         }
     }
-    valid_rounds == round_count
+
+    fn power(&self) -> usize {
+        self.red * self.green * self.blue
+    }
 }
 
-fn handle_game(sum_handle: &mut u32, total: &Cubes, input: &str) {
-    match input.split_once(": ") {
-        Some((game_info, rounds)) => {
-            if evaluate_rounds(total, rounds) {
-                *sum_handle += get_game_id(game_info);
+pub mod p1 {
+    use crate::d2::Cubes;
+
+    fn get_game_id(input: &str) -> u32 {
+        match input.split_once(' ') {
+            Some((_, id)) => id.parse::<u32>().unwrap(),
+            None => 0,
+        }
+    }
+
+    fn evaluate_rounds(total: &Cubes, rounds_input: &str) -> bool {
+        let mut valid_rounds = 0;
+        let rounds: Vec<_> = rounds_input.split("; ").collect();
+        let round_count = rounds.len();
+        for round in rounds {
+            let cubes = Cubes::parse(round);
+            if cubes.is_possible(&total) {
+                valid_rounds += 1;
             }
         }
-        None => {}
+        valid_rounds == round_count
+    }
+
+    fn handle_game(sum_handle: &mut u32, total: &Cubes, input: &str) {
+        match input.split_once(": ") {
+            Some((game_info, rounds)) => {
+                if evaluate_rounds(total, rounds) {
+                    *sum_handle += get_game_id(game_info);
+                }
+            }
+            None => {}
+        }
+    }
+    pub fn run() {
+        let game_data = include_str!("../in-data/d2.txt");
+        let total = Cubes::define_total(12, 13, 14);
+        let mut possible_games = 0;
+
+        for game in game_data.lines() {
+            handle_game(&mut possible_games, &total, game);
+        }
+        println!("possible games: {possible_games}");
     }
 }
 
-pub fn run_p1() {
-    let game_data = include_str!("../in-data/d2.txt");
-    let total = Cubes::define_total(12, 13, 14);
-    let mut possible_games = 0;
+pub mod p2 {
+    use super::Cubes;
 
-    for game in game_data.lines() {
-        handle_game(&mut possible_games, &total, game);
+    fn min_game_cubes(rounds_input: &str) -> Cubes {
+        let rounds: Vec<_> = rounds_input.split("; ").collect();
+        let mut min_cubes = Cubes::empty();
+
+        for round in rounds {
+            min_cubes.update(&Cubes::parse(round));
+        }
+        min_cubes
     }
-    println!("possible games: {possible_games}");
+
+    fn handle_game(power_sum: &mut usize, input: &str) {
+        match input.split_once(": ") {
+            Some((_, rounds)) => {
+                let min_cubes = min_game_cubes(rounds);
+                *power_sum += min_cubes.power();
+            }
+            None => {}
+        }
+    }
+
+    pub fn run() {
+        let game_data = include_str!("../in-data/d2.txt");
+
+        let mut power_sum = 0;
+
+        for game in game_data.lines() {
+            handle_game(&mut power_sum, game);
+        }
+        println!("power sum: {power_sum}");
+    }
 }
