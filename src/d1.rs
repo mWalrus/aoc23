@@ -29,7 +29,10 @@ pub fn run_p2() {
 trait LineParser {
     fn parse(line: &str) -> Self;
     fn get_pair(&self) -> (u32, u32);
-    fn get_sum(&self) -> u32;
+    fn get_sum(&self) -> u32 {
+        let (first, last) = self.get_pair();
+        (first * 10) + last
+    }
     fn translate_word_digit(_digit: &str) -> usize {
         0
     }
@@ -56,11 +59,6 @@ impl LineParser for Part1Parser {
         let first = self.digits.first().unwrap();
         let last = self.digits.last().unwrap();
         (*first, *last)
-    }
-
-    fn get_sum(&self) -> u32 {
-        let (first, last) = self.get_pair();
-        (first * 10) + last
     }
 }
 
@@ -134,10 +132,5 @@ impl LineParser for Part2Parser {
         };
 
         (first as u32, last as u32)
-    }
-
-    fn get_sum(&self) -> u32 {
-        let (first, last) = self.get_pair();
-        (first * 10) + last
     }
 }
