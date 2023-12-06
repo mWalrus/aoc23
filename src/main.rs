@@ -51,8 +51,8 @@ struct Args {
 fn main() {
     let args = Args::parse();
     match (args.day, args.part.unwrap_or_default()) {
-        (Day::D1, Part::P1) => d1::run_p1(),
-        (Day::D1, Part::P2) => d1::run_p2(),
+        (Day::D1, Part::P1) => d1::p1::run(),
+        (Day::D1, Part::P2) => d1::p2::run(),
         (Day::D2, Part::P1) => d2::p1::run(),
         (Day::D2, Part::P2) => d2::p2::run(),
         _ => {}
