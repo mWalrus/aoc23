@@ -1,4 +1,5 @@
 mod d1;
+mod d2;
 
 use clap::{Parser, ValueEnum};
 
@@ -29,17 +30,29 @@ enum Day {
     D23,
     D24,
 }
+#[derive(Clone, Copy, ValueEnum, Default)]
+enum Part {
+    #[default]
+    P1,
+    P2,
+    P3,
+    P4,
+    P5,
+}
 
 #[derive(Parser)]
 struct Args {
     #[clap(required = true, about)]
     day: Day,
+    #[clap(required = false, about)]
+    part: Option<Part>,
 }
 
 fn main() {
     let args = Args::parse();
-    match args.day {
-        Day::D1 => d1::run(),
+    match (args.day, args.part.unwrap_or_default()) {
+        (Day::D1, Part::P1) => d1::run_p1(),
+        (Day::D1, Part::P2) => d1::run_p2(),
         _ => {}
     }
 }
