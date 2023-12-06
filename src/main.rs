@@ -53,6 +53,7 @@ fn main() {
     match (args.day, args.part.unwrap_or_default()) {
         (Day::D1, Part::P1) => d1::run_p1(),
         (Day::D1, Part::P2) => d1::run_p2(),
+        (Day::D2, Part::P1) => d2::run_p1(),
         _ => {}
     }
 }
