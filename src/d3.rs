@@ -1,32 +1,53 @@
 use std::ops::Range;
 
-const IGNORES: &[char] = &['.', '\n'];
 const NUMBERS: &[char] = &['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-struct PartFinder<'a> {
+enum SearchType {
+    Parts,
+    Gears,
+}
+
+struct EngineSearcher<'a> {
     lines: Vec<&'a str>,
+    ignores: &'static [char],
     sum: u32,
 }
 
-impl<'a> PartFinder<'a> {
-    fn new(lines: Vec<&'a str>) -> Self {
-        Self { lines, sum: 0 }
+impl<'a> EngineSearcher<'a> {
+    fn new(lines: Vec<&'a str>, ignores: &'static [char]) -> Self {
+        Self {
+            lines,
+            ignores,
+            sum: 0,
+        }
     }
 
-    fn scan_lines(&mut self) {
+    fn search(&mut self, search_type: SearchType) {
         for (line_idx, line) in self.lines.iter().enumerate() {
             let mut adjacent_numbers = vec![];
             let line_indices = self.find_line_indices(line_idx);
             for (char_idx, char) in line.chars().enumerate() {
                 // this means we have found a "symbol" character
-                if !IGNORES.contains(&char) && !NUMBERS.contains(&char) {
+                if !self.ignores.contains(&char) {
                     let numbers = self.discover_adjacent_numbers(line_idx, &line_indices, char_idx);
                     adjacent_numbers.append(&mut numbers.clone());
-                    for n in numbers {
-                        self.sum += n;
-                    }
+                    Self::process_numbers(&mut self.sum, numbers, &search_type);
                 }
             }
+        }
+    }
+
+    fn process_numbers(sum: &mut u32, numbers: Vec<u32>, search_type: &SearchType) {
+        match search_type {
+            SearchType::Parts => {
+                for n in numbers {
+                    *sum += n;
+                }
+            }
+            SearchType::Gears if numbers.len() == 2 => {
+                *sum += numbers[0] * numbers[1];
+            }
+            _ => {}
         }
     }
 
@@ -81,7 +102,7 @@ impl<'a> PartFinder<'a> {
                 }
             }
         }
-        numbers
+        numbers.into_iter().filter(|n| *n != 0).collect()
     }
 
     fn resolve_adjacent_digits(
@@ -129,9 +150,33 @@ impl<'a> PartFinder<'a> {
     }
 }
 
-pub fn run() {
-    let input_data = include_str!("../in-data/d3.txt");
-    let mut part_finder = PartFinder::new(input_data.lines().collect());
-    part_finder.scan_lines();
-    println!("sum: {}", part_finder.sum);
+pub mod p1 {
+    use crate::d3::{EngineSearcher, SearchType};
+
+    pub fn run() {
+        let input_data = include_str!("../in-data/d3.txt");
+        let mut searcher = EngineSearcher::new(
+            input_data.lines().collect(),
+            &['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '\n'],
+        );
+        searcher.search(SearchType::Parts);
+        println!("sum: {}", searcher.sum);
+    }
+}
+
+pub mod p2 {
+    use crate::d3::{EngineSearcher, SearchType};
+
+    pub fn run() {
+        let input_data = include_str!("../in-data/d3.txt");
+        let mut searcher = EngineSearcher::new(
+            input_data.lines().collect(),
+            &[
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '\n', '#', '$', '%', '&',
+                '+', '-', '/', '=', '@',
+            ],
+        );
+        searcher.search(SearchType::Gears);
+        println!("sum: {}", searcher.sum);
+    }
 }

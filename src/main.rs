@@ -56,7 +56,8 @@ fn main() {
         (Day::D1, Part::P2) => d1::p2::run(),
         (Day::D2, Part::P1) => d2::p1::run(),
         (Day::D2, Part::P2) => d2::p2::run(),
-        (Day::D3, Part::P1) => d3::run(),
+        (Day::D3, Part::P1) => d3::p1::run(),
+        (Day::D3, Part::P2) => d3::p2::run(),
         _ => {}
     }
 }
