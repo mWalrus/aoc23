@@ -1,5 +1,6 @@
 mod d1;
 mod d2;
+mod d3;
 
 use clap::{Parser, ValueEnum};
 
@@ -55,6 +56,7 @@ fn main() {
         (Day::D1, Part::P2) => d1::p2::run(),
         (Day::D2, Part::P1) => d2::p1::run(),
         (Day::D2, Part::P2) => d2::p2::run(),
+        (Day::D3, Part::P1) => d3::run(),
         _ => {}
     }
 }
